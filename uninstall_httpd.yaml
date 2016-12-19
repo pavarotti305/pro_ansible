@@ -1,0 +1,10 @@
+---
+- hosts: all
+  become: yes
+
+  tasks:
+    - name: Uninstall Apache.
+      yum: name={{ item }} state=absent
+      with_items:
+         - httpd
+         - httpd-devel

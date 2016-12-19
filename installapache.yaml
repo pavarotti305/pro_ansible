@@ -1,0 +1,117 @@
+---
+- hosts: all
+  become: yes
+
+  tasks:
+    - name: Install Apache.
+      yum: name={{ item }} state=latest
+      with_items:
+         - httpd
+         - httpd-devel
+
+    - name: Stop and disable firewalld only for test.
+      service:
+        name: firewalld
+        state: stopped
+        enabled: False
+
+    - name: Create the directory structure for site.
+      file: path=/var/www/{{ item }} owner=root group=root mode=0755 recurse=yes state=directory
+      with_items:
+        - "ditelkin.com"
+        - "ditelkin2.com"
+
+    - name: Create the second directory inside first.
+      file: path=/var/www/ditelkin.com/public_html owner=root group=root mode=0755 recurse=yes state=directory
+
+    - name: Create the second directory inside first for second site.
+      file: path=/var/www/ditelkin2.com/public_html owner=root group=root mode=0755 recurse=yes state=directory
+
+
+    - name: Copy demo pages for virtual host.
+      copy:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        owner: apache
+        group: apache
+        mode: 0644
+      with_items:
+        - src: "index.html"
+          dest: "/var/www/ditelkin.com/public_html/index.html"
+
+
+    - name: Copy demo pages for virtual host.
+      copy:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        owner: apache
+        group: apache
+        mode: 0644
+      with_items:
+        - src: "index2.html"
+          dest: "/var/www/ditelkin2.com/public_html/index.html"
+
+    - name: Create site available and enabled
+      file: path=/etc/httpd/{{ item }} owner=root group=root mode=0755 state=directory
+      with_items:
+        - "sites-available"
+        - "sites-enabled"
+
+    - name: Make sure Apache is restarted.
+      service: name=httpd state=restarted
+
+    - name: Copy configuration files.
+      copy:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        owner: root
+        group: root
+        mode: 0644
+      with_items:
+        - src: "httpd.conf"
+          dest: "/etc/httpd/conf/httpd.conf"
+
+    - name: Make sure Apache is restarted.
+      service: name=httpd state=restarted
+
+    - name: Copy Virtual Host file.
+      copy:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        owner: root
+        group: root
+        mode: 0644
+      with_items:
+        - src: "ditelkin.conf"
+          dest: "/etc/httpd/sites-available/ditelkin.conf"
+
+    - name: Copy Virtual Host file.
+      copy:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        owner: root
+        group: root
+        mode: 0644
+      with_items:
+        - src: "ditelkin2.conf"
+          dest: "/etc/httpd/sites-available/ditelkin2.conf"
+
+    - name: Make sure Apache is restarted.
+      service: name=httpd state=restarted
+
+    - name: Enable symlink the first virtual host files
+      file: src=/etc/httpd/sites-available/ditelkin.conf dest=/etc/httpd/sites-enabled/ditelkin.conf state=link
+
+    - name: Make sure Apache is restarted.
+      service: name=httpd state=restarted
+
+    - name: Enable symlink the second virtual host files
+      file: src=/etc/httpd/sites-available/ditelkin2.conf dest=/etc/httpd/sites-enabled/ditelkin2.conf state=link
+
+    - name: Make sure Apache is restarted.
+      service: name=httpd state=restarted
+
+    - name: Make sure Apache is started now and at boot.
+      service: name=httpd state=started enabled=yes
+
+

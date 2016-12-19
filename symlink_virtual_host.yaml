@@ -1,0 +1,10 @@
+---
+- hosts: all
+  become: yes
+
+  tasks:
+    - name: Enable symlink the new virtual host files
+      file: src=/etc/httpd/sites-available/ditelkin.com.conf dest=/etc/httpd/sites-enabled/ditelkin.com.conf state=link
+
+    - name: Restarted Apache.
+      service: name=httpd state=restarted

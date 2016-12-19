@@ -1,0 +1,16 @@
+---
+- hosts: all
+  become: yes
+
+  tasks:
+    - name: remove the second directory inside first.
+      file: path=/var/www/ditelkin.com/public_html state=absent
+
+    - name: remove the directory structure.
+      file: path=/var/www/ditelkin.com state=absent
+
+    - name: remove dir for virtual host.
+      file: path=/etc/httpd/{{ item }} state=absent
+      with_items:
+         - "sites-available"
+         - "sites-enabled"

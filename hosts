@@ -1,0 +1,14 @@
+[webprodservers]
+web[1:2]
+
+[webtestservers]
+web[3:4]
+
+[dbservers]
+db
+
+# All servers regrouped in all group
+[all:children]
+webprodservers
+webtestservers
+dbservers

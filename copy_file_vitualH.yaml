@@ -1,0 +1,33 @@
+---
+- hosts: all
+  become: yes
+
+  tasks:
+    - name: Copy configuration files.
+      copy:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        owner: root
+        group: root
+        mode: 0644
+      with_items:
+        - src: "httpd.conf"
+          dest: "/etc/httpd/conf/httpd.conf"
+    - name: Copy demo pages for virtual host.
+      copy:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        owner: apache
+        group: apache
+        mode: 0644
+      with_items:
+        - src: "index.html"
+          dest: "/var/www/ditelkin.com/public_html/index.html"
+
+    - name: Copy Virtual Host file.
+      copy:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+      with_items:
+        - src: "ditelkin.com.conf"
+          dest: "/etc/httpd/sites-available/ditelkin.com.conf"

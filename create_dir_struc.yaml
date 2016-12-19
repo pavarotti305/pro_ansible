@@ -1,0 +1,20 @@
+---
+- hosts: all
+  become: yes
+
+  tasks:
+     - name: Create the directory structure.
+       file: path=/var/www/{{ item }} owner=vagrant group=vagrant mode=0775 recurse=yes state=directory
+       with_items:
+         - "ditelkin.com"
+
+     - name: Create the second directory inside first.
+       file: path=/var/www/ditelkin.com/{{ item }} owner=vagrant group=vagrant mode=0775 recurse=yes state=directory
+       with_items:
+         - "public_html"
+
+     - name: Create dir for virtual host.
+       file: path=/etc/httpd/{{ item }} state=directory
+       with_items:
+         - "sites-available"
+         - "sites-enabled"
