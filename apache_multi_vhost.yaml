@@ -13,12 +13,6 @@
          - httpd
          - httpd-devel
 
-    - name: Stop and disable firewalld only for test.
-      service:
-        name: firewalld
-        state: stopped
-        enabled: False
-
     - name: Create the directory structure for site.
       file: path=/var/www/ditelkin.com owner=root group=root mode=0755 recurse=yes state=directory
 
