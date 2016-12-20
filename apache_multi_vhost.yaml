@@ -3,9 +3,13 @@
   become: yes
 
   tasks:
+    - name: upgrade all packages
+      yum: name='*' state=latest
+
     - name: Install Apache.
       yum: name={{ item }} state=present
       with_items:
+         - epel-release
          - httpd
          - httpd-devel
 
