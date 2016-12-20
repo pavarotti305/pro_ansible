@@ -1,0 +1,10 @@
+---
+- hosts: all
+  become: yes
+
+  tasks:
+    - name: Create the directory structure for site.
+      file: path=/var/www/{{ item.0 }}/{{ item.1 }} owner=root group=root mode=0755 recurse=yes state=directory
+      with_nested:
+      - ['ditelkin1.com', 'ditelkin2.com', 'ditelkin3.com']
+      - ['html', 'html', 'html']
