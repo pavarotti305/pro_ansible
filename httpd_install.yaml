@@ -1,0 +1,58 @@
+---
+- hosts: all
+  become: yes
+
+  tasks:
+    - name: Install Apache.
+      yum: name={{ item }} state=present
+      with_items:
+         - httpd
+         - httpd-devel
+
+    - name: Create the directory structure for site.
+      file: path=/var/www/ditelkin.com owner=root group=root mode=0755 recurse=yes state=directory
+
+    - name: Create the second directory inside first.
+      file: path=/var/www/ditelkin.com/public_html owner=root group=root mode=0755 recurse=yes state=directory
+
+    - name: Copy demo pages for virtual host.
+      copy:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        owner: apache
+        group: apache
+        mode: 0644
+      with_items:
+        - src: "index.html"
+          dest: "/var/www/ditelkin.com/public_html/index.html"
+    - service:
+        name: httpd
+        state: restarted
+
+    - name: Copy httpd config file.
+      copy:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        owner: root
+        group: root
+        mode: 0644
+      with_items:
+        - src: "httpd.conf"
+          dest: "/etc/httpd/conf/httpd.conf"
+    - service:
+        name: httpd
+        state: restarted
+
+    - name: Copy first virtual Host file.
+      copy:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        owner: root
+        group: root
+        mode: 0644
+      with_items:
+        - src: "ditelkin.conf"
+          dest: "/etc/httpd/conf.d/ditelkin.conf"
+
+    - name: Make sure Apache is started now and at boot.
+      service: name=httpd state=started enabled=yes
